@@ -1,65 +1,191 @@
-# Backend Documentation
+# Distributed Job Scheduler - Spring Boot Microservices
 
-This folder contains streamlined documentation for the backend application. Each file serves a specific purpose without overlap.
+A scalable distributed job scheduling system built with Spring Boot microservices architecture. The system can handle millions of tasks, ensure high availability, and prevent single points of failure through segment-based partitioning and leader election.
 
-## Documentation Index
+## 🏗️ Architecture Overview
 
-### 📋 [ARCHITECTURE.md](./ARCHITECTURE.md)
-**System architecture and design principles**
-- Project structure and technology stack
-- Kanban-core integration patterns
-- Component relationships and data flow
+This project implements a distributed job scheduler consisting of **5 microservices**:
 
-### 🚀 [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md)
-**Complete development workflow and implementation guide**
-- Setup instructions and prerequisites
-- Step-by-step component creation (DTOs, entities, services, controllers)
-- Code templates and examples
-- Best practices and coding standards
-- **CRITICAL RULES and restrictions**
+### Services
 
-### ⚙️ [CONFIGURATION.md](./CONFIGURATION.md)
-**Environment and deployment configuration**
-- Application configuration files
-- Database and security settings
-- Environment-specific configurations
-- Docker and deployment setup
+| Service | Port | Description |
+|---------|------|-------------|
+| **job-store-service** | 8081 | Centralized persistence layer for jobs, schedules, executions, and workers |
+| **scheduler-coordinator** | 8082 | Orchestrates scheduler workers with leader election and segment assignment |
+| **scheduler-worker** | 8083 | Scans job schedules by segments and dispatches jobs |
+| **worker-agent** | 8084 | Executes jobs with concurrency control |
+| **execution-coordinator** | 8085 | Monitors worker health and handles job reassignment on failures |
 
-### 🔄 [API_PATTERNS.md](./API_PATTERNS.md)
-**API design and response patterns**
-- Standardized response structures
-- Controller implementation patterns
-- Error handling and validation
-- API versioning and migration
+## 🚀 Quick Start
 
-## Quick Navigation
+### Prerequisites
+- Java 21
+- Maven 3.6+
 
-### For New Developers
-1. Start with [ARCHITECTURE.md](./ARCHITECTURE.md) to understand the system design
-2. Follow [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) for complete development workflow
-3. Review [API_PATTERNS.md](./API_PATTERNS.md) for API implementation standards
-4. Refer to [CONFIGURATION.md](./CONFIGURATION.md) for environment setup
+### Build All Services
+```bash
+cd /home/engine/project
+mvn clean install
+```
 
-### For Experienced Developers
-- Use [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) for patterns, templates, and critical rules
-- Check [API_PATTERNS.md](./API_PATTERNS.md) for response standards
-- Refer to [CONFIGURATION.md](./CONFIGURATION.md) for deployment configurations
+### Run Services
 
-## Key Technologies
+Each service can be run independently:
 
-- **Framework**: Spring Boot 3.5.5 with Java 21
-- **Database**: PostgreSQL with Spring Data JPA
-- **Core Library**: Kanban-Core 3.2.26 (custom framework)
-- **Build Tool**: Maven
-- **Additional**: Lombok, MapStruct
+```bash
+# Terminal 1 - Job Store Service
+cd job-store-service
+mvn spring-boot:run
 
-## Critical Rules
+# Terminal 2 - Scheduler Coordinator
+cd scheduler-coordinator
+mvn spring-boot:run
 
-⚠️ **MANDATORY READING**: All developers must read and follow the critical rules in [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md), especially:
-- **NO JPA Relationships** (@OneToMany, @ManyToOne, @OneToOne, @ManyToMany)
-- Entity design restrictions
-- Mandatory patterns and conventions
+# Terminal 3 - Scheduler Worker
+cd scheduler-worker
+mvn spring-boot:run
+
+# Terminal 4 - Worker Agent
+cd worker-agent
+mvn spring-boot:run
+
+# Terminal 5 - Execution Coordinator
+cd execution-coordinator
+mvn spring-boot:run
+```
+
+## 📖 Documentation
+
+Comprehensive documentation is available in the `guide/` folder:
+
+- **[SYSTEM_DESIGN.md](./guide/SYSTEM_DESIGN.md)** - Complete system design, architecture, and API reference
+- **[ARCHITECTURE.md](./guide/ARCHITECTURE.md)** - Original Spring Boot architecture patterns
+- **[DEVELOPMENT_GUIDE.md](./guide/DEVELOPMENT_GUIDE.md)** - Development workflow and coding standards
+- **[API_PATTERNS.md](./guide/API_PATTERNS.md)** - API design and response patterns
+- **[CONFIGURATION.md](./guide/CONFIGURATION.md)** - Configuration and deployment guide
+
+## 🔑 Key Features
+
+### Scalability
+- **Segment-based partitioning** (100 segments: 0-99) for horizontal scaling
+- Multiple coordinator nodes with leader election
+- Multiple scheduler workers and worker agents
+- Each handles specific job segments
+
+### High Availability
+- **No single point of failure** through leader election
+- Worker health monitoring with heartbeat mechanism
+- Automatic job reassignment on worker failure
+- Fault-tolerant job execution
+
+### Consistency
+- Idempotent job dispatching via dispatch records
+- Segment-based job ownership prevents duplication
+- Status tracking for each execution
+- Checkpoint support for retries
+
+### Performance
+- Configurable concurrency per worker
+- Periodic scanning (60s for scheduling, 30s for health monitoring)
+- Direct REST API communication
+- H2 in-memory database for development
+
+## 🧪 Testing the System
+
+### 1. Submit a Job
+```bash
+curl -X POST http://localhost:8081/api/jobs \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jobName": "Test Job",
+    "userId": 1,
+    "frequency": "ONE_TIME",
+    "executionTime": "2024-12-31T10:00:00Z",
+    "payload": "Job payload data",
+    "maxRetries": 3,
+    "segment": 5
+  }'
+```
+
+### 2. Register Scheduler Worker
+```bash
+curl -X POST "http://localhost:8082/api/scheduler-workers/register?workerId=worker-1"
+```
+
+### 3. Assign Segments
+```bash
+curl -X POST "http://localhost:8082/api/segments/assign?workerId=worker-1&desiredSegments=10"
+```
+
+### 4. Check Job Status
+```bash
+curl http://localhost:8081/api/jobs/1
+```
+
+## 🛠️ Technology Stack
+
+- **Spring Boot 3.3.4** - Application framework
+- **Java 21** - Programming language
+- **H2 Database** - In-memory database (development)
+- **PostgreSQL** - Recommended for production
+- **Maven** - Build tool
+- **Lombok** - Code generation
+- **MapStruct** - Object mapping
+
+## 📊 Database Schema
+
+### Core Tables
+- **jobs** - Job metadata (name, frequency, payload, status, retry count)
+- **job_schedules** - Scheduling data with next_run_time and segment
+- **job_executions** - Execution history with checkpoint data
+- **workers** - Worker registration and capacity
+- **worker_heartbeats** - Worker health tracking
+
+### Design Principles
+- **No JPA relationships** - Only ID references for simplicity
+- Service layer coordination for related data
+- Flat entity model for easier maintenance
+
+## 🔄 System Flow
+
+```
+1. Job Submission
+   Client → Job Store Service → Creates Job + Schedule
+
+2. Job Scheduling
+   Scheduler Worker → Job Store Service → Get due jobs for segments
+   Scheduler Worker → Publishes job dispatch event
+   Scheduler Worker → Updates job status to SCHEDULED
+
+3. Job Execution
+   Worker Agent → Receives job dispatch event
+   Worker Agent → Executes job (with concurrency control)
+   Worker Agent → Updates job status (RUNNING → COMPLETED/FAILED)
+
+4. Health Monitoring
+   Execution Coordinator → Monitors worker heartbeats
+   Execution Coordinator → Detects failures → Reassigns jobs
+```
+
+## 🎯 Future Enhancements
+
+- Kafka integration for job dispatch events
+- Job prioritization with priority queues
+- Job dependencies and workflow support
+- Rate limiting at client and queue levels
+- Prometheus metrics and distributed tracing
+- Full checkpoint/resume implementation
+- Backpressure handling
+- Dead letter queue for failed jobs
+
+## 📝 License
+
+This project is part of a distributed systems learning exercise.
+
+## 🤝 Contributing
+
+Please read the development guide in `guide/DEVELOPMENT_GUIDE.md` before contributing.
 
 ---
 
-**Note**: This documentation is streamlined to avoid redundancy. Each file serves a specific purpose without overlap.
+**For detailed system design and architecture, see [SYSTEM_DESIGN.md](./guide/SYSTEM_DESIGN.md)**
