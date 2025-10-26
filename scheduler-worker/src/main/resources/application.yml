@@ -1,0 +1,28 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: scheduler-worker
+
+  datasource:
+    url: jdbc:h2:mem:scheduler_worker;MODE=PostgreSQL;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: sa
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+scheduler:
+  worker:
+    worker-id: worker-1
+    assigned-segments: []
+    coordinator-url: http://localhost:8082
+    job-store-url: http://localhost:8081
+
+logging:
+  level:
+    com.distributed.jobscheduler: DEBUG

@@ -1,0 +1,27 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: worker-agent
+
+  datasource:
+    url: jdbc:h2:mem:worker_agent;MODE=PostgreSQL;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: sa
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+worker:
+  agent:
+    worker-id: agent-1
+    concurrency-limit: 10
+    job-store-url: http://localhost:8081
+
+logging:
+  level:
+    com.distributed.jobscheduler: DEBUG

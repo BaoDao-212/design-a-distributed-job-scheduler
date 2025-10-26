@@ -1,0 +1,33 @@
+# Maven
+/target/
+**/target/
+
+# IntelliJ IDEA
+*.iml
+.idea/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Logs
+*.log
+
+# Java
+hs_err_pid*
+replay_pid*
+
+# Spring Boot
+*.jar
+*.war
+*.zip
+
+# Generated
+**/generated-sources/
