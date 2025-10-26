@@ -19,7 +19,9 @@ public class ExecutionCoordinatorController {
 
     @PostMapping("/workers/{workerId}")
     public ResponseData<ExecutionWorkerEntity> registerWorker(@PathVariable String workerId,
-                                                               @RequestParam(required = false) Integer capacity) {
+                                                               @RequestParam(required = false) Integer capacity,
+                                                               @RequestParam(required = false) String host,
+                                                               @RequestParam(required = false) Integer port) {
         ExecutionWorkerEntity worker = workerRepository.findByWorkerId(workerId)
                 .orElseGet(() -> {
                     ExecutionWorkerEntity entity = new ExecutionWorkerEntity();
@@ -28,6 +30,8 @@ public class ExecutionCoordinatorController {
                 });
         worker.setCapacity(capacity);
         worker.setCurrentLoad(0);
+        worker.setWorkerHost(host);
+        worker.setWorkerPort(port);
         worker.setLastHeartbeat(Instant.now());
         workerRepository.save(worker);
         return ResponseUtils.success(worker);
@@ -35,12 +39,16 @@ public class ExecutionCoordinatorController {
 
     @PostMapping("/workers/{workerId}/heartbeat")
     public ResponseData<String> heartbeat(@PathVariable String workerId,
-                                          @RequestParam(required = false) Integer currentLoad) {
+                                          @RequestParam(required = false) Integer currentLoad,
+                                          @RequestParam(required = false) Integer capacity) {
         ExecutionWorkerEntity worker = workerRepository.findByWorkerId(workerId)
                 .orElseThrow(() -> new IllegalArgumentException("Worker not found"));
         worker.setLastHeartbeat(Instant.now());
         if (currentLoad != null) {
             worker.setCurrentLoad(currentLoad);
+        }
+        if (capacity != null) {
+            worker.setCapacity(capacity);
         }
         workerRepository.save(worker);
         return ResponseUtils.success("Heartbeat recorded");
