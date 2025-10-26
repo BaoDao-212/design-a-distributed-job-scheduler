@@ -30,6 +30,12 @@ public class ExecutionWorkerEntity {
     @Column(name = "current_load")
     private Integer currentLoad;
 
+    @Column(name = "worker_host")
+    private String workerHost;
+
+    @Column(name = "worker_port")
+    private Integer workerPort;
+
     @Column(name = "last_heartbeat")
     private Instant lastHeartbeat;
 
