@@ -56,13 +56,48 @@ mvn spring-boot:run
 
 ## 📖 Documentation
 
-Comprehensive documentation is available in the `guide/` folder:
+Comprehensive documentation is available:
 
-- **[SYSTEM_DESIGN.md](./guide/SYSTEM_DESIGN.md)** - Complete system design, architecture, and API reference
-- **[ARCHITECTURE.md](./guide/ARCHITECTURE.md)** - Original Spring Boot architecture patterns
-- **[DEVELOPMENT_GUIDE.md](./guide/DEVELOPMENT_GUIDE.md)** - Development workflow and coding standards
-- **[API_PATTERNS.md](./guide/API_PATTERNS.md)** - API design and response patterns
-- **[CONFIGURATION.md](./guide/CONFIGURATION.md)** - Configuration and deployment guide
+### 📊 [DIAGRAMS.md](./DIAGRAMS.md)
+**Architecture and flow diagrams**
+- High-level service overview
+- Sequence diagrams (submission, dispatch, execution)
+- Leader election & health monitoring flows
+- Segment partitioning and scaling strategy
+- Database schema relationships
+- 12 comprehensive Mermaid diagrams
+
+### 🔧 [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md)
+**Complete system design and API reference**
+- Detailed service descriptions
+- API endpoints for all services
+- Database schema
+- Design patterns and best practices
+
+### 📋 [ARCHITECTURE.md](./ARCHITECTURE.md)
+**System architecture principles**
+- Project structure and technology stack
+- Component relationships and data flow
+- Architectural decisions
+
+### 🚀 [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md)
+**Development workflow and standards**
+- Setup instructions and prerequisites
+- Step-by-step component creation
+- Code templates and examples
+- **CRITICAL RULES and restrictions**
+
+### 🔄 [API_PATTERNS.md](./API_PATTERNS.md)
+**API design patterns**
+- Standardized response structures
+- Controller implementation patterns
+- Error handling and validation
+
+### ⚙️ [CONFIGURATION.md](./CONFIGURATION.md)
+**Configuration and deployment**
+- Application configuration files
+- Database and security settings
+- Environment-specific configurations
 
 ## 🔑 Key Features
 
@@ -184,8 +219,18 @@ This project is part of a distributed systems learning exercise.
 
 ## 🤝 Contributing
 
-Please read the development guide in `guide/DEVELOPMENT_GUIDE.md` before contributing.
+Please read the development guide in [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) before contributing.
+
+## ⚠️ Critical Rules
+
+**MANDATORY READING**: All developers must follow:
+- **NO JPA Relationships** (@OneToMany, @ManyToOne, @OneToOne, @ManyToMany)
+- Entity design restrictions
+- Mandatory patterns and conventions
+
+See [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) for complete details.
 
 ---
 
-**For detailed system design and architecture, see [SYSTEM_DESIGN.md](./guide/SYSTEM_DESIGN.md)**
+**For visual architecture diagrams, see [DIAGRAMS.md](./DIAGRAMS.md)**  
+**For detailed system design, see [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md)**
