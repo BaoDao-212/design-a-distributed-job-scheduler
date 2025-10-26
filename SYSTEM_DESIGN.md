@@ -4,6 +4,81 @@
 
 This project implements a scalable distributed job scheduling system using Spring Boot microservices architecture. The system can handle millions of tasks, ensure high availability, and prevent single points of failure.
 
+## Visual Overview
+
+> 📌 Additional diagrams (leader election, health monitoring, scaling, database schema, etc.) are available in [DIAGRAMS.md](./DIAGRAMS.md).
+
+### High-Level Architecture
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        Client[Client Applications]
+    end
+    
+    subgraph "Service Layer"
+        JS[Job Store Service\nPort 8081\nPersistence Layer]
+        SC[Scheduler Coordinator\nPort 8082\nLeader Election & Segments]
+        SW[Scheduler Worker\nPort 8083\nJob Scanning]
+        WA[Worker Agent\nPort 8084\nJob Execution]
+        EC[Execution Coordinator\nPort 8085\nHealth Monitoring]
+    end
+    
+    subgraph "Data Layer"
+        DB[(H2/PostgreSQL\nDatabase)]
+    end
+    
+    Client -->|Submit Jobs| JS
+    Client -->|Query Status| JS
+    
+    SW -->|Poll Due Jobs| JS
+    SW -->|Update Status| JS
+    WA -->|Update Execution| JS
+    
+    SC -->|Register & Heartbeat| SW
+    SC -->|Assign Segments| SW
+    
+    SW -->|Dispatch Jobs| WA
+    
+    EC -->|Monitor Health| WA
+    EC -->|Reassign Failed Jobs| WA
+    
+    JS -.->|Read/Write| DB
+    SC -.->|Read/Write| DB
+    SW -.->|Read/Write| DB
+    EC -.->|Read/Write| DB
+```
+
+### Scheduling & Execution Sequence
+
+```mermaid
+sequenceDiagram
+    participant SW as Scheduler Worker
+    participant JS as Job Store Service
+    participant WA as Worker Agent
+    participant EC as Execution Coordinator
+    
+    note over SW: Every 60 seconds
+    SW->>JS: GET /api/job-schedules/due\n(asOf, segments)
+    JS-->>SW: Due jobs for assigned segments
+    
+    loop for each due job
+        SW->>JS: PUT /api/jobs/{id}/status\nstatus=SCHEDULED
+        SW->>WA: POST /api/worker-agent/dispatch\nJobDispatchEvent
+        WA->>JS: PUT /api/jobs/{id}/status\nstatus=RUNNING
+        WA->>WA: Execute job logic
+        alt success
+            WA->>JS: PUT /api/jobs/{id}/status\nstatus=COMPLETED
+        else failure
+            WA->>JS: PUT /api/jobs/{id}/status\nstatus=FAILED
+        end
+    end
+    
+    note over EC: Every 30 seconds
+    EC->>WA: Monitor heartbeats and load
+    EC->>EC: Reassign jobs if worker unhealthy
+```
+
 ## Architecture
 
 The system consists of 5 main microservices:

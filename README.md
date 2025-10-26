@@ -4,6 +4,13 @@ This folder contains streamlined documentation for the backend application. Each
 
 ## Documentation Index
 
+### 📊 [DIAGRAMS.md](./DIAGRAMS.md)
+**Architecture and flow diagrams**
+- High-level service overview
+- Sequence diagrams (submission, dispatch, execution)
+- Leader election & health monitoring flows
+- Segment partitioning and scaling strategy
+
 ### 📋 [ARCHITECTURE.md](./ARCHITECTURE.md)
 **System architecture and design principles**
 - Project structure and technology stack
@@ -35,10 +42,11 @@ This folder contains streamlined documentation for the backend application. Each
 ## Quick Navigation
 
 ### For New Developers
-1. Start with [ARCHITECTURE.md](./ARCHITECTURE.md) to understand the system design
-2. Follow [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) for complete development workflow
-3. Review [API_PATTERNS.md](./API_PATTERNS.md) for API implementation standards
-4. Refer to [CONFIGURATION.md](./CONFIGURATION.md) for environment setup
+1. Start with [DIAGRAMS.md](./DIAGRAMS.md) to visualize the system architecture
+2. Read [ARCHITECTURE.md](./ARCHITECTURE.md) to understand the system design
+3. Follow [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) for complete development workflow
+4. Review [API_PATTERNS.md](./API_PATTERNS.md) for API implementation standards
+5. Refer to [CONFIGURATION.md](./CONFIGURATION.md) for environment setup
 
 ### For Experienced Developers
 - Use [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) for patterns, templates, and critical rules
